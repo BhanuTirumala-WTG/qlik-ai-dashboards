@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scenario Comparison — Demand Planning Analytics</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js + Annotation Plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+
+  <!-- Design Tokens & Styles -->
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/layout.css">
+  <link rel="stylesheet" href="styles/components.css">
+</head>
+<body>
+  <a href="#panel-overview" class="skip-nav">Skip to dashboard content</a>
+  <div class="app">
+    <!-- ============================== HEADER ============================== -->
+    <header class="app-header" role="banner">
+      <h1 class="app-header__title">Scenario Comparison</h1>
+      <div class="app-header__meta">
+        <span class="app-header__timestamp" id="data-timestamp">Data refreshed: Apr 13, 2026 09:30 AM</span>
+        <span class="app-header__brand">Demand Planning Analytics</span>
+      </div>
+    </header>
+
+    <!-- ============================== FILTER BAR ============================== -->
+    <div class="filter-bar" role="region" aria-label="Dashboard filters">
+      <div class="filter-group">
+        <label class="filter-group__label" for="filter-scenario-a">Scenario A</label>
+        <select class="filter-select filter-select--scenario-a" id="filter-scenario-a" aria-label="Select Scenario A"></select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-group__label" for="filter-scenario-b">Scenario B</label>
+        <select class="filter-select filter-select--scenario-b" id="filter-scenario-b" aria-label="Select Scenario B"></select>
+      </div>
+
+      <div class="filter-divider" aria-hidden="true"></div>
+
+      <div class="filter-group">
+        <label class="filter-group__label" for="filter-lag">Lag</label>
+        <select class="filter-select" id="filter-lag" aria-label="Filter by Lag"></select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-group__label" for="filter-version">Version</label>
+        <select class="filter-select" id="filter-version" aria-label="Filter by Version"></select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-group__label" for="filter-location">Location</label>
+        <select class="filter-select" id="filter-location" aria-label="Filter by Location"></select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-group__label" for="filter-item">Item</label>
+        <select class="filter-select" id="filter-item" aria-label="Filter by Item"></select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-group__label" for="filter-lds-group">LDS Group</label>
+        <select class="filter-select" id="filter-lds-group" aria-label="Filter by LDS Group"></select>
+      </div>
+
+      <button class="filter-clear-btn" id="clear-filters" aria-label="Clear all filter selections">
+        Clear All
+      </button>
+    </div>
+
+    <!-- Same-scenario warning -->
+    <div class="same-scenario-warning" id="same-scenario-warning" role="alert" aria-live="polite" hidden>
+      ⚠ Both filters are set to the same scenario — comparison values will show no difference.
+    </div>
+
+    <!-- ============================== TAB NAVIGATION ============================== -->
+    <nav class="tab-nav" role="tablist" aria-label="Dashboard sections">
+      <button class="tab-nav__item tab-nav__item--active" id="tab-overview" data-tab="overview" role="tab" aria-selected="true" aria-controls="panel-overview" tabindex="0">Overview</button>
+      <button class="tab-nav__item" id="tab-trending" data-tab="trending" role="tab" aria-selected="false" aria-controls="panel-trending" tabindex="-1">Trending</button>
+      <button class="tab-nav__item" id="tab-detail" data-tab="detail" role="tab" aria-selected="false" aria-controls="panel-detail" tabindex="-1">Detail</button>
+    </nav>
+
+    <!-- =========================================================================== -->
+    <!-- TAB 1: OVERVIEW                                                             -->
+    <!-- =========================================================================== -->
+    <div id="panel-overview" class="tab-panel tab-panel--active" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
+      <div class="dashboard-content">
+
+        <!-- KPI Cards -->
+        <div class="kpi-groups">
+          <!-- MAPE Group -->
+          <div>
+            <div class="section-header">MAPE</div>
+            <div class="kpi-group">
+              <div class="kpi-card" id="kpi-mape-a">
+                <div class="kpi-card__label">Scenario A MAPE</div>
+                <div class="kpi-card__value kpi-card__value--scenario-a">22%</div>
+                <div class="kpi-card__trend kpi-card__trend--down" aria-label="Improved">&#8595; lower is better</div>
+              </div>
+              <div class="kpi-card" id="kpi-mape-b">
+                <div class="kpi-card__label">Scenario B MAPE</div>
+                <div class="kpi-card__value kpi-card__value--scenario-b">20%</div>
+                <div class="kpi-card__trend kpi-card__trend--down" aria-label="Improved">&#8595; lower is better</div>
+              </div>
+              <div class="kpi-card kpi-card--diff" id="kpi-mape-diff">
+                <div class="kpi-card__label">MAPE Δ%</div>
+                <div class="kpi-card__value kpi-card__value--positive">-8%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-groups__divider" aria-hidden="true"></div>
+
+          <!-- Bias Group -->
+          <div>
+            <div class="section-header">Bias</div>
+            <div class="kpi-group">
+              <div class="kpi-card" id="kpi-bias-a">
+                <div class="kpi-card__label">Scenario A Bias</div>
+                <div class="kpi-card__value kpi-card__value--scenario-a">-4%</div>
+                <div class="kpi-card__trend kpi-card__trend--flat" aria-label="Stable">&#8594; closer to 0 is better</div>
+              </div>
+              <div class="kpi-card" id="kpi-bias-b">
+                <div class="kpi-card__label">Scenario B Bias</div>
+                <div class="kpi-card__value kpi-card__value--scenario-b">-4%</div>
+                <div class="kpi-card__trend kpi-card__trend--flat" aria-label="Stable">&#8594; closer to 0 is better</div>
+              </div>
+              <div class="kpi-card kpi-card--diff" id="kpi-bias-diff">
+                <div class="kpi-card__label">Bias Δ</div>
+                <div class="kpi-card__value kpi-card__value--neutral">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-groups__divider" aria-hidden="true"></div>
+
+          <!-- Ext Error Group -->
+          <div>
+            <div class="section-header">External Error</div>
+            <div class="kpi-group">
+              <div class="kpi-card" id="kpi-ext-under-a">
+                <div class="kpi-card__label">Ext Err Under A</div>
+                <div class="kpi-card__value kpi-card__value--scenario-a">1%</div>
+                <div class="kpi-card__trend kpi-card__trend--flat" aria-label="No change">&#8594; vs prior</div>
+              </div>
+              <div class="kpi-card" id="kpi-ext-under-b">
+                <div class="kpi-card__label">Ext Err Under B</div>
+                <div class="kpi-card__value kpi-card__value--scenario-b">1%</div>
+                <div class="kpi-card__trend kpi-card__trend--flat" aria-label="No change">&#8594; vs prior</div>
+              </div>
+              <div class="kpi-card kpi-card--diff" id="kpi-ext-under-diff">
+                <div class="kpi-card__label">Ext Under Δ</div>
+                <div class="kpi-card__value kpi-card__value--neutral">0%</div>
+              </div>
+              <div class="kpi-card" id="kpi-ext-over-a">
+                <div class="kpi-card__label">Ext Err Over A</div>
+                <div class="kpi-card__value kpi-card__value--scenario-a">0%</div>
+                <div class="kpi-card__trend kpi-card__trend--flat" aria-label="No change">&#8594; vs prior</div>
+              </div>
+              <div class="kpi-card" id="kpi-ext-over-b">
+                <div class="kpi-card__label">Ext Err Over B</div>
+                <div class="kpi-card__value kpi-card__value--scenario-b">0%</div>
+                <div class="kpi-card__trend kpi-card__trend--flat" aria-label="No change">&#8594; vs prior</div>
+              </div>
+              <div class="kpi-card kpi-card--diff" id="kpi-ext-over-diff">
+                <div class="kpi-card__label">Ext Over Δ</div>
+                <div class="kpi-card__value kpi-card__value--neutral">0%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row 1: Scatter + MAPE by Lag -->
+        <div class="chart-grid chart-grid--overview-top">
+          <!-- Scatter Plot -->
+          <div class="chart-card">
+            <div class="chart-card__header">
+              <div>
+                <h2 class="chart-card__title" id="scatter-chart-title">Scenario A vs Scenario B MAPE</h2>
+                <div class="chart-card__subtitle">Each point represents an item/location</div>
+              </div>
+              <div class="chart-card__controls">
+                <label class="sr-only" for="scatter-group-by">Show datapoints by</label>
+                <select class="chart-card__dropdown" id="scatter-group-by">
+                  <option value="dsu">DSU</option>
+                  <option value="location">Location</option>
+                  <option value="item">Item</option>
+                </select>
+              </div>
+            </div>
+            <div class="chart-card__body">
+              <canvas id="chart-scatter" aria-label="Scatter plot comparing MAPE between two scenarios"></canvas>
+            </div>
+            <div class="scatter-annotation">Points below the diagonal = Scenario B outperforms A</div>
+            <div class="scatter-legend">
+              <span class="scatter-legend__item"><span class="scatter-legend__dot" style="background: var(--chart-scenario-a);"></span> <span>&#9679; B &ge; A (on or above line)</span></span>
+              <span class="scatter-legend__item"><span class="scatter-legend__dot scatter-legend__dot--triangle" style="background: var(--chart-scenario-b);"></span> <span>&#9650; B &lt; A (below line)</span></span>
+            </div>
+          </div>
+
+          <!-- MAPE by Lag -->
+          <div class="chart-card">
+            <div class="chart-card__header">
+              <div>
+                <h2 class="chart-card__title">MAPE by Lag</h2>
+                <div class="chart-card__subtitle">Side-by-side comparison across forecast horizons</div>
+              </div>
+            </div>
+            <div class="chart-card__body">
+              <canvas id="chart-mape-lag" aria-label="Grouped bar chart showing MAPE by lag for both scenarios"></canvas>
+            </div>
+            <div class="chart-legend">
+              <span class="chart-legend__item"><span class="chart-legend__dot chart-legend__dot--a"></span> <span class="legend-a-name">DS Base</span></span>
+              <span class="chart-legend__item"><span class="chart-legend__dot chart-legend__dot--b"></span> <span class="legend-b-name">DS Base + (MS)</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row 2: Bias by Lag + Insights Summary -->
+        <div class="chart-grid chart-grid--overview-top chart-grid--gap-top">
+          <div class="chart-card">
+            <div class="chart-card__header">
+              <div>
+                <h2 class="chart-card__title">Bias by Lag</h2>
+                <div class="chart-card__subtitle">Forecast bias comparison across lag horizons</div>
+              </div>
+            </div>
+            <div class="chart-card__body chart-card__body--compact">
+              <canvas id="chart-bias-lag" aria-label="Grouped bar chart showing Bias by lag for both scenarios"></canvas>
+            </div>
+            <div class="chart-legend">
+              <span class="chart-legend__item"><span class="chart-legend__dot chart-legend__dot--a"></span> <span class="legend-a-name">DS Base</span></span>
+              <span class="chart-legend__item"><span class="chart-legend__dot chart-legend__dot--b"></span> <span class="legend-b-name">DS Base + (MS)</span></span>
+            </div>
+          </div>
+
+          <!-- Insights Summary Card -->
+          <div class="chart-card" id="insights-card">
+            <div class="chart-card__header">
+              <div>
+                <h2 class="chart-card__title">Key Insights</h2>
+                <div class="chart-card__subtitle">Auto-generated comparison summary</div>
+              </div>
+            </div>
+            <div class="chart-card__body chart-card__body--compact chart-card__body--padded">
+              <ul id="insights-list" class="insights-list" role="list">
+                <li class="insights-list__item insights-list__item--positive">
+                  <strong>MAPE Improvement:</strong> Scenario B shows <strong>8% lower MAPE</strong> overall — better forecast accuracy.
+                </li>
+                <li class="insights-list__item insights-list__item--neutral">
+                  <strong>Bias:</strong> Both scenarios show identical bias at <strong>-4%</strong> — slight under-forecasting tendency.
+                </li>
+                <li class="insights-list__item insights-list__item--positive">
+                  <strong>Short-term Lags (0-3):</strong> Scenario B consistently outperforms A by <strong>2-3% MAPE</strong>.
+                </li>
+                <li class="insights-list__item insights-list__item--warning">
+                  <strong>Long-term Lags (9-12):</strong> Gap narrows — both scenarios converge at higher error rates.
+                </li>
+                <li class="insights-list__item insights-list__item--neutral">
+                  <strong>External Error:</strong> Minimal difference — both at ~1% under, ~0% over.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================================== -->
+    <!-- TAB 2: TRENDING                                                             -->
+    <!-- =========================================================================== -->
+    <div id="panel-trending" class="tab-panel" role="tabpanel" aria-labelledby="tab-trending" tabindex="0">
+      <div class="dashboard-content">
+        <div class="chart-grid chart-grid--trending">
+          <div class="chart-card">
+            <!-- Sub-tabs -->
+            <div class="sub-tabs" role="tablist" aria-label="Trending views">
+              <button class="sub-tab sub-tab--active" data-subtab="mape-trending" role="tab" aria-selected="true">MAPE Trending</button>
+              <button class="sub-tab" data-subtab="bias-trending" role="tab" aria-selected="false">Bias Trending</button>
+              <button class="sub-tab" data-subtab="mape-version" role="tab" aria-selected="false">MAPE by Version</button>
+              <button class="sub-tab" data-subtab="error-dist" role="tab" aria-selected="false">Error Distribution</button>
+            </div>
+            <div class="chart-card__header">
+              <div>
+                <h2 class="chart-card__title" id="trending-chart-title">MAPE Trending</h2>
+                <div class="chart-card__subtitle">Time-series comparison over calendar months</div>
+              </div>
+            </div>
+            <div class="chart-card__body chart-card__body--tall">
+              <canvas id="chart-trending" aria-label="Trending chart for the selected metric"></canvas>
+            </div>
+            <div class="chart-legend">
+              <span class="chart-legend__item"><span class="chart-legend__dot chart-legend__dot--a"></span> <span id="trending-legend-a">DS Base</span></span>
+              <span class="chart-legend__item"><span class="chart-legend__dot chart-legend__dot--b"></span> <span id="trending-legend-b">DS Base + (MS)</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================================== -->
+    <!-- TAB 3: DETAIL                                                               -->
+    <!-- =========================================================================== -->
+    <div id="panel-detail" class="tab-panel" role="tabpanel" aria-labelledby="tab-detail" tabindex="0">
+      <div class="dashboard-content">
+        <div class="chart-card">
+          <div class="chart-card__header">
+            <div>
+              <h2 class="chart-card__title">Scenario Detail Comparison</h2>
+              <div class="chart-card__subtitle">Drill down by Location and Item — conditional formatting highlights significant differences</div>
+            </div>
+          </div>
+          <div class="data-table-wrapper">
+            <table class="data-table" aria-label="Detailed scenario comparison table">
+              <thead id="detail-table-head">
+                <tr>
+                  <th class="sortable" scope="col">Location</th>
+                  <th class="sortable" scope="col">Item</th>
+                  <th class="sortable" scope="col" data-type="number">MAPE A</th>
+                  <th class="sortable" scope="col" data-type="number">MAPE B</th>
+                  <th class="sortable" scope="col" data-type="number">MAPE Δ%</th>
+                  <th class="sortable" scope="col" data-type="number">Bias A</th>
+                  <th class="sortable" scope="col" data-type="number">Bias B</th>
+                  <th class="sortable" scope="col" data-type="number">Bias Δ</th>
+                  <th class="sortable" scope="col" data-type="number">Ext Under A</th>
+                  <th class="sortable" scope="col" data-type="number">Ext Under B</th>
+                  <th class="sortable" scope="col" data-type="number">Ext Over A</th>
+                  <th class="sortable" scope="col" data-type="number">Ext Over B</th>
+                </tr>
+              </thead>
+              <tbody id="detail-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="scripts/data.js"></script>
+  <script src="scripts/charts.js"></script>
+  <script src="scripts/interactions.js"></script>
+</body>
+</html>

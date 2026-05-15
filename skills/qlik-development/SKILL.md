@@ -1,6 +1,3 @@
-name: Qlik Dashboard Development
-description: Expertise in developing interactive HTML dashboard prototypes that represent Qlik-style dashboards using the Modern Harmony design system. Use this skill when building, modifying, or debugging HTML dashboard prototypes.
-
 # Qlik Dashboard Development Skill
 
 This skill provides expertise in developing interactive HTML dashboard prototypes that represent Qlik-style dashboards using the Modern Harmony design system. Use this skill when building, modifying, or debugging HTML dashboard prototypes.
